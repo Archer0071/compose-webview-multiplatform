@@ -14,6 +14,7 @@ import com.multiplatform.webview.jsbridge.WebViewJsBridge
 actual fun ActualWebView(
     state: WebViewState,
     modifier: Modifier,
+    payload:String?,
     captureBackPresses: Boolean,
     navigator: WebViewNavigator,
     webViewJsBridge: WebViewJsBridge?,
@@ -25,6 +26,7 @@ actual fun ActualWebView(
     AccompanistWebView(
         state,
         modifier,
+        payload,
         captureBackPresses,
         navigator,
         webViewJsBridge,

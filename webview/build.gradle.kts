@@ -1,25 +1,31 @@
-@file:Suppress("UNUSED_VARIABLE", "OPT_IN_USAGE")
+@file:Suppress("UNUSED_VARIABLE")
+
+import com.vanniktech.maven.publish.SonatypeHost
+
 
 plugins {
-    kotlin("multiplatform")
+    alias(libs.plugins.kotlinMultiplatform)
     id("com.android.library")
     id("org.jetbrains.compose")
-    id("org.jetbrains.dokka")
-    id("com.vanniktech.maven.publish")
+    id("org.jetbrains.kotlin.plugin.compose")
+    id("org.jetbrains.dokka") version "1.9.10"
+    id("com.vanniktech.maven.publish") version "0.26.0"
     kotlin("plugin.serialization")
 }
 
 kotlin {
-//    explicitApi = ExplicitApiMode.Strict
-
-    targetHierarchy.default()
-
+    task("testClasses")
+    androidTarget()
+    applyDefaultHierarchyTemplate()
     androidTarget {
         publishLibraryVariants("release")
     }
 
     jvm("desktop")
-
+    js {
+        browser()
+        binaries.executable()
+    }
     listOf(
         iosX64(),
         iosArm64(),
@@ -33,46 +39,50 @@ kotlin {
     }
 
     sourceSets {
-        val coroutinesVersion = extra["coroutines.version"] as String
+        val coroutines = "1.7.3"
+
         val commonMain by getting {
             dependencies {
                 implementation(compose.runtime)
                 implementation(compose.foundation)
-                @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
+                implementation(compose.material)
                 implementation(compose.components.resources)
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
-                implementation("co.touchlab:kermit:2.0.3")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kermit)
+                implementation(libs.kotlinx.serialization.json)
             }
         }
         val androidMain by getting {
             dependencies {
-                api("androidx.activity:activity-compose:1.8.2")
-                api("androidx.webkit:webkit:1.10.0")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion")
+                api(libs.androidx.activity.compose)
+                api(libs.androidx.webkit)
+                implementation(libs.kotlinx.coroutines.android)
             }
         }
         val iosX64Main by getting
         val iosArm64Main by getting
         val iosSimulatorArm64Main by getting
-        val iosMain by getting {
-            dependsOn(commonMain)
-            iosX64Main.dependsOn(this)
-            iosArm64Main.dependsOn(this)
-            iosSimulatorArm64Main.dependsOn(this)
-        }
+        val iosMain by getting
         val desktopMain by getting {
             dependencies {
                 implementation(compose.desktop.common)
-                api("dev.datlag:kcef:2024.04.20.3")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:$coroutinesVersion")
+                api(libs.kcef)
+                implementation(libs.kotlinx.coroutines.swing)
+                implementation(libs.kotlinx.serialization.json)
             }
         }
+        val jsMain by getting {
+            dependencies {
+                implementation(compose.html.core)
+                implementation(devNpm("copy-webpack-plugin", "9.1.0"))
+            }
+        }
+
     }
 }
 
 android {
-    compileSdk = (findProperty("android.compileSdk") as String).toInt()
+    compileSdk = 34
     namespace = "com.multiplatform.webview"
 
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
@@ -80,7 +90,7 @@ android {
     sourceSets["main"].resources.srcDirs("src/commonMain/resources")
 
     defaultConfig {
-        minSdk = (findProperty("android.minSdk") as String).toInt()
+        minSdk = 21
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -107,6 +117,6 @@ fun org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget.setUpiOSObserver()
 }
 
 mavenPublishing {
-    publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.S01, automaticRelease = true)
+    publishToMavenCentral(SonatypeHost.S01, automaticRelease = true)
     signAllPublications()
 }

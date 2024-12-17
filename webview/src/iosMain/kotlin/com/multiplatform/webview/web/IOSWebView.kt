@@ -32,7 +32,8 @@ actual typealias NativeWebView = WKWebView
  * iOS implementation of [IWebView]
  */
 class IOSWebView(
-    override val webView: WKWebView,
+    private val wkWebView: WKWebView,
+    private val payload:String?,
     override val scope: CoroutineScope,
     override val webViewJsBridge: WebViewJsBridge?,
 ) : IWebView {
@@ -40,9 +41,9 @@ class IOSWebView(
         initWebView()
     }
 
-    override fun canGoBack() = webView.canGoBack
+    override fun canGoBack() = wkWebView.canGoBack
 
-    override fun canGoForward() = webView.canGoForward
+    override fun canGoForward() = wkWebView.canGoForward
 
     override fun loadUrl(
         url: String,
@@ -60,7 +61,7 @@ class IOSWebView(
             )
             true
         }
-        webView.loadRequest(
+        wkWebView.loadRequest(
             request = request,
         )
     }
@@ -78,7 +79,7 @@ class IOSWebView(
             }
             return
         }
-        webView.loadHTMLString(
+        wkWebView.loadHTMLString(
             string = html,
             baseURL = baseUrl?.let { NSURL.URLWithString(it) },
         )
@@ -87,7 +88,7 @@ class IOSWebView(
     override suspend fun loadHtmlFile(fileName: String) {
         val res = NSBundle.mainBundle.resourcePath + "/compose-resources/assets/" + fileName
         val url = NSURL.fileURLWithPath(res)
-        webView.loadFileURL(url, url)
+        wkWebView.loadFileURL(url, url)
     }
 
     @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
@@ -106,30 +107,30 @@ class IOSWebView(
                     NSData.create(bytes = allocArrayOf(postData), length = postData.size.toULong())
                 }
         }
-        webView.loadRequest(request = request)
+        wkWebView.loadRequest(request = request)
     }
 
     override fun goBack() {
-        webView.goBack()
+        wkWebView.goBack()
     }
 
     override fun goForward() {
-        webView.goForward()
+        wkWebView.goForward()
     }
 
     override fun reload() {
-        webView.reload()
+        wkWebView.reload()
     }
 
     override fun stopLoading() {
-        webView.stopLoading()
+        wkWebView.stopLoading()
     }
 
     override fun evaluateJavaScript(
         script: String,
         callback: ((String) -> Unit)?,
     ) {
-        webView.evaluateJavaScript(script) { result, error ->
+        wkWebView.evaluateJavaScript(script) { result, error ->
             if (callback == null) return@evaluateJavaScript
             if (error != null) {
                 KLogger.e { "evaluateJavaScript error: $error" }
@@ -159,7 +160,7 @@ class IOSWebView(
     override fun initJsBridge(webViewJsBridge: WebViewJsBridge) {
         KLogger.info { "injectBridge" }
         val jsMessageHandler = WKJsMessageHandler(webViewJsBridge)
-        webView.configuration.userContentController.apply {
+        wkWebView.configuration.userContentController.apply {
             addScriptMessageHandler(jsMessageHandler, "iosJsBridge")
         }
     }

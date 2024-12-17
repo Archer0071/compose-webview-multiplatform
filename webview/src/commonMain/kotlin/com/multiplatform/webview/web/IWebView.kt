@@ -199,6 +199,25 @@ interface IWebView {
             """.trimIndent()
         evaluateJavaScript(initJs)
     }
+    fun injectWebAccessPayload(payload: String) {
+        if (webViewJsBridge == null) return
+        val jsBridgeName = webViewJsBridge!!.jsBridgeName
+        KLogger.d {
+            "IWebView injectWebAccessPayload"
+        }
+        val initJs = webAccessPayloadJavascript(payload)
+        if (initJs != null) {
+            evaluateJavaScript(initJs)
+        } else {
+            KLogger.e("Failed to generate web access payload Javascript")
+        }
+    }
+
+    fun webAccessPayloadJavascript(webAccessPayload: String?): String? {
+        if (webAccessPayload == null) return null
+        val encodedString = webAccessPayload ?: return null
+        return "localStorage.setItem('fas-user','$encodedString')"
+    }
 
     /**
      * Inject the JSBridge into the WebView.

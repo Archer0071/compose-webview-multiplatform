@@ -28,6 +28,7 @@ import platform.darwin.NSObject
 class WKNavigationDelegate(
     private val state: WebViewState,
     private val navigator: WebViewNavigator,
+    private val payload:String?
 ) : NSObject(), WKNavigationDelegateProtocol {
     private var isRedirect = false
 
@@ -88,6 +89,22 @@ class WKNavigationDelegate(
             }
         }
         KLogger.info { "didFinishNavigation ${state.lastLoadedUrl}" }
+       if (payload != null){
+           if (!reloaded){
+               reloaded = true
+               webView.evaluateJavaScript(javaScriptString = "javascript:localStorage.setItem('fas-user',JSON.stringify(${payload}))", completionHandler = null)
+               webView.reload()
+           }
+          }else{
+           if (!reloaded) {
+               reloaded = true
+               webView.evaluateJavaScript(
+                   javaScriptString = "javascript:localStorage.removeItem('fas-user')",
+                   completionHandler = null
+               )
+               webView.reload()
+           }
+          }
     }
 
     /**

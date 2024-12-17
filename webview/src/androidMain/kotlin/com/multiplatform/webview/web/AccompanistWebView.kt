@@ -62,12 +62,13 @@ import com.multiplatform.webview.util.KLogger
 fun AccompanistWebView(
     state: WebViewState,
     modifier: Modifier = Modifier,
+    payload: String? = null,
     captureBackPresses: Boolean = true,
     navigator: WebViewNavigator = rememberWebViewNavigator(),
     webViewJsBridge: WebViewJsBridge? = null,
     onCreated: (WebView) -> Unit = {},
     onDispose: (WebView) -> Unit = {},
-    client: AccompanistWebViewClient = remember { AccompanistWebViewClient() },
+    client: AccompanistWebViewClient = remember { AccompanistWebViewClient(payload) },
     chromeClient: AccompanistWebChromeClient = remember { AccompanistWebChromeClient() },
     factory: ((Context) -> WebView)? = null,
 ) {
@@ -98,6 +99,7 @@ fun AccompanistWebView(
             state,
             layoutParams,
             Modifier,
+            payload,
             captureBackPresses,
             navigator,
             webViewJsBridge,
@@ -140,12 +142,13 @@ fun AccompanistWebView(
     state: WebViewState,
     layoutParams: FrameLayout.LayoutParams,
     modifier: Modifier = Modifier,
+    payload: String? = null,
     captureBackPresses: Boolean = true,
     navigator: WebViewNavigator = rememberWebViewNavigator(),
     webViewJsBridge: WebViewJsBridge? = null,
     onCreated: (WebView) -> Unit = {},
     onDispose: (WebView) -> Unit = {},
-    client: AccompanistWebViewClient = remember { AccompanistWebViewClient() },
+    client: AccompanistWebViewClient = remember { AccompanistWebViewClient(payload) },
     chromeClient: AccompanistWebChromeClient = remember { AccompanistWebChromeClient() },
     factory: ((Context) -> WebView)? = null,
 ) {
@@ -278,6 +281,15 @@ open class AccompanistWebViewClient : WebViewClient() {
         val script =
             "var meta = document.createElement('meta');meta.setAttribute('name', 'viewport');meta.setAttribute('content', 'width=device-width, initial-scale=${state.webSettings.zoomLevel}, maximum-scale=10.0, minimum-scale=0.1,user-scalable=yes');document.getElementsByTagName('head')[0].appendChild(meta);"
         navigator.evaluateJavaScript(script)
+        loadWebAccessPayload(view, payload)
+    }
+
+    private fun loadWebAccessPayload(view: WebView, payload: String?) {
+        if (payload != null) {
+            view.loadUrl("javascript:localStorage.setItem(\'fas-user\',JSON.stringify(${payload}))")
+        } else {
+            view.loadUrl("javascript:localStorage.removeItem('fas-user')")
+        }
     }
 
     override fun onPageFinished(

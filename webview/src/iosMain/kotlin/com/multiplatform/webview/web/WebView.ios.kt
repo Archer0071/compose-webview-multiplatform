@@ -27,6 +27,7 @@ import platform.WebKit.javaScriptEnabled
 actual fun ActualWebView(
     state: WebViewState,
     modifier: Modifier,
+    payload:String?,
     captureBackPresses: Boolean,
     navigator: WebViewNavigator,
     webViewJsBridge: WebViewJsBridge?,
@@ -38,6 +39,7 @@ actual fun ActualWebView(
     IOSWebView(
         state = state,
         modifier = modifier,
+        payload = payload,
         captureBackPresses = captureBackPresses,
         navigator = navigator,
         webViewJsBridge = webViewJsBridge,
@@ -64,6 +66,7 @@ actual fun defaultWebViewFactory(param: WebViewFactoryParam) = WKWebView(frame =
 fun IOSWebView(
     state: WebViewState,
     modifier: Modifier,
+    payload: String?,
     captureBackPresses: Boolean,
     navigator: WebViewNavigator,
     webViewJsBridge: WebViewJsBridge?,
@@ -78,7 +81,7 @@ fun IOSWebView(
                 navigator = navigator,
             )
         }
-    val navigationDelegate = remember { WKNavigationDelegate(state, navigator) }
+    val navigationDelegate = remember { WKNavigationDelegate(state, navigator,payload) }
     val scope = rememberCoroutineScope()
 
     UIKitView(
@@ -111,6 +114,11 @@ fun IOSWebView(
                 state.viewState?.let {
                     this.interactionState = it
                 }
+            WKWebView(
+                frame = CGRectZero.readValue(),
+                configuration = config,
+            ).apply {
+                onCreated()
                 allowsBackForwardNavigationGestures = captureBackPresses
                 customUserAgent = state.webSettings.customUserAgentString
                 this.addProgressObservers(
@@ -142,7 +150,7 @@ fun IOSWebView(
                     }
                 }
             }.also {
-                val iosWebView = IOSWebView(it, scope, webViewJsBridge)
+                val iosWebView = IOSWebView(it,payload, scope, webViewJsBridge)
                 state.webView = iosWebView
                 webViewJsBridge?.webView = iosWebView
             }
@@ -154,7 +162,7 @@ fun IOSWebView(
                 observer = observer,
             )
             it.navigationDelegate = null
-            onDispose(it)
+            onDispose()
         },
         properties =
             UIKitInteropProperties(

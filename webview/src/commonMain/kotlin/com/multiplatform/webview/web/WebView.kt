@@ -34,6 +34,7 @@ import kotlinx.coroutines.flow.merge
 fun WebView(
     state: WebViewState,
     modifier: Modifier = Modifier,
+    payload: String?,
     captureBackPresses: Boolean = true,
     navigator: WebViewNavigator = rememberWebViewNavigator(),
     webViewJsBridge: WebViewJsBridge? = null,
@@ -152,6 +153,7 @@ fun WebView(
     ActualWebView(
         state = state,
         modifier = modifier,
+        payload = payload,
         captureBackPresses = captureBackPresses,
         navigator = navigator,
         webViewJsBridge = webViewJsBridge,
@@ -204,6 +206,7 @@ expect fun defaultWebViewFactory(param: WebViewFactoryParam): NativeWebView
 expect fun ActualWebView(
     state: WebViewState,
     modifier: Modifier = Modifier,
+    payload:String? = null,
     captureBackPresses: Boolean = true,
     navigator: WebViewNavigator = rememberWebViewNavigator(),
     webViewJsBridge: WebViewJsBridge? = null,
