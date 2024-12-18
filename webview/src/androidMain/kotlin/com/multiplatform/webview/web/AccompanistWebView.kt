@@ -255,7 +255,7 @@ fun AccompanistWebView(
  * As Accompanist Web needs to set its own web client to function, it provides this intermediary
  * class that can be overriden if further custom behaviour is required.
  */
-open class AccompanistWebViewClient : WebViewClient() {
+open class AccompanistWebViewClient(val payload: String?) : WebViewClient() {
     open lateinit var state: WebViewState
         internal set
     open lateinit var navigator: WebViewNavigator
@@ -348,9 +348,6 @@ open class AccompanistWebViewClient : WebViewClient() {
         view: WebView?,
         request: WebResourceRequest?,
     ): Boolean {
-        KLogger.d {
-            "shouldOverrideUrlLoading: ${request?.url} ${request?.isForMainFrame} ${request?.isRedirect} ${request?.method}"
-        }
         if (isRedirect || request == null || navigator.requestInterceptor == null) {
             isRedirect = false
             return super.shouldOverrideUrlLoading(view, request)

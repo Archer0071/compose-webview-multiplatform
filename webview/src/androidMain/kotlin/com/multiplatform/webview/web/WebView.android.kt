@@ -32,7 +32,7 @@ actual fun ActualWebView(
         webViewJsBridge,
         onCreated = onCreated,
         onDispose = onDispose,
-        client = platformWebViewParams?.client ?: remember { AccompanistWebViewClient() },
+        client = platformWebViewParams?.client ?: remember { AccompanistWebViewClient(payload) },
         chromeClient = platformWebViewParams?.chromeClient ?: remember { AccompanistWebChromeClient() },
         factory = { factory(WebViewFactoryParam(it)) },
     )
