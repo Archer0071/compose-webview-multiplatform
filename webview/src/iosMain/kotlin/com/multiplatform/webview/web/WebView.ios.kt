@@ -81,7 +81,7 @@ fun IOSWebView(
                 navigator = navigator,
             )
         }
-    val navigationDelegate = remember { WKNavigationDelegate(state, navigator,payload) }
+    val navigationDelegate = remember { WKNavigationDelegate(state, navigator,payload ) }
     val scope = rememberCoroutineScope()
 
     UIKitView(
@@ -114,11 +114,6 @@ fun IOSWebView(
                 state.viewState?.let {
                     this.interactionState = it
                 }
-            WKWebView(
-                frame = CGRectZero.readValue(),
-                configuration = config,
-            ).apply {
-                onCreated()
                 allowsBackForwardNavigationGestures = captureBackPresses
                 customUserAgent = state.webSettings.customUserAgentString
                 this.addProgressObservers(
@@ -131,9 +126,9 @@ fun IOSWebView(
                         (it.iOSWebSettings.backgroundColor ?: it.backgroundColor).toUIColor()
                     val scrollViewColor =
                         (
-                            it.iOSWebSettings.underPageBackgroundColor
-                                ?: it.backgroundColor
-                        ).toUIColor()
+                                it.iOSWebSettings.underPageBackgroundColor
+                                    ?: it.backgroundColor
+                                ).toUIColor()
                     setOpaque(it.iOSWebSettings.opaque)
                     if (!it.iOSWebSettings.opaque) {
                         setBackgroundColor(backgroundColor)
@@ -162,12 +157,12 @@ fun IOSWebView(
                 observer = observer,
             )
             it.navigationDelegate = null
-            onDispose()
+            onDispose(it)
         },
         properties =
-            UIKitInteropProperties(
-                interactionMode = UIKitInteropInteractionMode.NonCooperative,
-                isNativeAccessibilityEnabled = true,
-            ),
+        UIKitInteropProperties(
+            interactionMode = UIKitInteropInteractionMode.NonCooperative,
+            isNativeAccessibilityEnabled = true,
+        ),
     )
 }

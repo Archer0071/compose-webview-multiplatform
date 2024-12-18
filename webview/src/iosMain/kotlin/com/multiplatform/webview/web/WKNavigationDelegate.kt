@@ -6,6 +6,7 @@ import com.multiplatform.webview.util.KLogger
 import com.multiplatform.webview.util.getPlatformVersionDouble
 import com.multiplatform.webview.util.notZero
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.ObjCSignatureOverride
 import platform.CoreGraphics.CGPointMake
 import platform.Foundation.HTTPMethod
 import platform.Foundation.NSError
@@ -28,13 +29,13 @@ import platform.darwin.NSObject
 class WKNavigationDelegate(
     private val state: WebViewState,
     private val navigator: WebViewNavigator,
-    private val payload:String?
 ) : NSObject(), WKNavigationDelegateProtocol {
     private var isRedirect = false
 
     /**
      * Called when the web view begins to receive web content.
      */
+    @ObjCSignatureOverride
     override fun webView(
         webView: WKWebView,
         didStartProvisionalNavigation: WKNavigation?,
@@ -50,6 +51,7 @@ class WKNavigationDelegate(
     /**
      * Called when the web view receives a server redirect.
      */
+    @ObjCSignatureOverride
     override fun webView(
         webView: WKWebView,
         didCommitNavigation: WKNavigation?,
@@ -66,6 +68,7 @@ class WKNavigationDelegate(
     /**
      * Called when the web view finishes loading.
      */
+    @ObjCSignatureOverride
     @OptIn(ExperimentalForeignApi::class)
     override fun webView(
         webView: WKWebView,
@@ -89,22 +92,6 @@ class WKNavigationDelegate(
             }
         }
         KLogger.info { "didFinishNavigation ${state.lastLoadedUrl}" }
-       if (payload != null){
-           if (!reloaded){
-               reloaded = true
-               webView.evaluateJavaScript(javaScriptString = "javascript:localStorage.setItem('fas-user',JSON.stringify(${payload}))", completionHandler = null)
-               webView.reload()
-           }
-          }else{
-           if (!reloaded) {
-               reloaded = true
-               webView.evaluateJavaScript(
-                   javaScriptString = "javascript:localStorage.removeItem('fas-user')",
-                   completionHandler = null
-               )
-               webView.reload()
-           }
-          }
     }
 
     /**
