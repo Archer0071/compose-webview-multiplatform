@@ -45,6 +45,7 @@ fun WebView(
     WebView(
         state = state,
         modifier = modifier,
+        payload = payload,
         captureBackPresses = captureBackPresses,
         navigator = navigator,
         webViewJsBridge = webViewJsBridge,
@@ -72,6 +73,7 @@ fun WebView(
 fun WebView(
     state: WebViewState,
     modifier: Modifier = Modifier,
+    payload: String?,
     captureBackPresses: Boolean = true,
     navigator: WebViewNavigator = rememberWebViewNavigator(),
     webViewJsBridge: WebViewJsBridge? = null,

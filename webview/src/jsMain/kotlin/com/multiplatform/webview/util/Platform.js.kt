@@ -6,3 +6,11 @@ package com.multiplatform.webview.util
 internal actual fun getPlatform(): Platform {
     TODO("Not yet implemented")
 }
+
+internal actual fun getPlatformVersion(): String {
+    TODO("Not yet implemented")
+}
+
+internal actual fun getPlatformVersionDouble(): Double {
+    TODO("Not yet implemented")
+}
